@@ -27,6 +27,8 @@ const float n_sec_for_a_cycle = 4.0 ;
 
 const float pi = 3.14159265359 ;
 
+const float n_sec_for_ramiel_in_fixed_angle_when_rocking = 0.05 ;
+
 
 /**
  * Make a camera that observe Ramiel rotating.
@@ -38,12 +40,46 @@ void main()
     // Rotation.
     float progress_of_rotation = mod(time, n_sec_for_a_cycle) / n_sec_for_a_cycle ;
     float theta_of_rotation    = progress_of_rotation * 2.0 * pi ;
-    mat4 rotation_matrix = mat4(
-        cos(theta_of_rotation),    0, -sin(theta_of_rotation),    0,
-                             0,    1,                       0,    0,
-        sin(theta_of_rotation),    0,  cos(theta_of_rotation),    0,
-                             0,    0,                       0,    1
-    ) ;
+    mat4 rotation_matrix ;
+    if (is_rocking_ramiel != 1)
+    {
+        rotation_matrix = mat4(
+            cos(theta_of_rotation),    0, -sin(theta_of_rotation),    0,
+                                 0,    1,                       0,    0,
+            sin(theta_of_rotation),    0,  cos(theta_of_rotation),    0,
+                                 0,    0,                       0,    1
+        ) ;
+    }
+    else
+    {
+        float time_elapsed = time - rock_ramiel_started_time ;
+        // In same period, seed does not change.
+        float seed = floor(time_elapsed / n_sec_for_ramiel_in_fixed_angle_when_rocking) ;
+        float ang_x = fract(sin(seed * 20.26) * 11.11) * 2.0 * pi ;
+        float ang_y = fract(sin(seed * 12.34) * 56.78) * 2.0 * pi ;
+        float ang_z = fract(sin(seed * 87.65) * 43.21) * 2.0 * pi ;
+
+        mat4 x_rotation = mat4(
+            1, 0, 0, 0,
+            0, cos(ang_x), sin(ang_x), 0,
+            0, -sin(ang_x), cos(ang_x), 0,
+            0, 0, 0, 1
+        ) ;
+        mat4 y_rotation = mat4(
+            cos(ang_y), 0, -sin(ang_y), 0,
+            0, 1, 0, 0,
+            sin(ang_y), 0, cos(ang_y), 0,
+            0, 0, 0, 1
+        ) ;
+        mat4 z_rotation = mat4(
+            cos(ang_z), sin(ang_z), 0, 0,
+            -sin(ang_z), cos(ang_z), 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        ) ;
+
+        rotation_matrix = z_rotation * y_rotation * x_rotation ;
+    }
     // Remember ground (ID less than 10) not rotate.
     mat4 model_matrix = id_of_object_vertex < 10 ? mat4(1.0) : rotation_matrix;
 

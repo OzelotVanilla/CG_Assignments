@@ -1,3 +1,4 @@
+import { onRockRamielConstructor } from './rock_ramiel';
 import { createProgram } from '../../lib/gl';
 
 
@@ -21,30 +22,6 @@ enum ObjectDrawnID
     ramiel_laser,
 }
 
-
-function onRockRamielConstructor(
-    gl: WebGL2RenderingContext, program: WebGLProgram
-)
-{
-    return async function (event: PointerEvent)
-    {
-        const button__ref = document.getElementById("rock_ramiel") as HTMLButtonElement
-        const vsupos__rock_ramiel_started_time = gl.getUniformLocation(program, "rock_ramiel_started_time")
-        const vsupos__is_rocking_ramiel = gl.getUniformLocation(program, "is_rocking_ramiel")
-
-        // // Click start.
-        button__ref.disabled = true
-
-        // // Performance.
-        gl.uniform1f(vsupos__rock_ramiel_started_time, performance.now() / 1000)
-        gl.uniform1i(vsupos__is_rocking_ramiel, 1)
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        // // Clean up.
-        button__ref.disabled = false
-        gl.uniform1i(vsupos__is_rocking_ramiel, 0)
-    }
-}
 
 function init()
 {
