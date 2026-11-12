@@ -14,6 +14,7 @@ const source_paths = [
     "src/shader__beginner/letter_A",
     "src/shader__beginner/spinning_box",
     "src/ramiel_a_joke_to_me",
+    "src/mushrooms",
 ]
 
 const output_dir = resolve("output");
