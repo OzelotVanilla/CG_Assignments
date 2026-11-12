@@ -43,17 +43,17 @@ class InstrumentPartial
     osc: OscillatorNode
     gain: GainNode
     multiple: number
+    amplitude: number
 
     constructor(harm_and_amp: HarmonicsAndAmp)
     {
-        let osc = audio_context.createOscillator()
-        let gain = audio_context.createGain()
-        gain.gain.value = harm_and_amp.amplitude
-
-        this.osc = osc
-        this.gain = gain
-        this.osc.connect(this.gain)
+        this.osc = audio_context.createOscillator()
+        this.gain = audio_context.createGain()
         this.multiple = harm_and_amp.multiple
+        this.amplitude = harm_and_amp.amplitude
+
+        this.gain.gain.value = 0
+        this.osc.connect(this.gain)
     }
 
     schedule(frequency: number, start_time: number, duration: number)
@@ -61,6 +61,12 @@ class InstrumentPartial
         this.osc.frequency.setValueAtTime(frequency * this.multiple, start_time)
         this.osc.start(start_time)
         this.osc.stop(start_time + duration)
+
+        const fade = Math.min(0.01, duration / 2)
+        this.gain.gain.setValueAtTime(0, start_time)
+        this.gain.gain.linearRampToValueAtTime(this.amplitude, start_time + fade)
+        this.gain.gain.setValueAtTime(this.amplitude, start_time + duration - fade)
+        this.gain.gain.linearRampToValueAtTime(0, start_time + duration)
     }
 }
 
